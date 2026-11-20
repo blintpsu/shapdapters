@@ -73,6 +73,31 @@ fn generate_vertical_rectangle (width: usize, height: usize) -> Vec<usize> {
     return rectangle;
 }
 
+/// Generate a horizontal rectangle
+/// NOTE:  width and height represents the tile size.  In the case of the 
+/// vertical rectangle it fills in half the columns in the center of the tile 
+/// top to bottom.
+fn generate_vertical_rectangle (width: usize, height: usize) -> Vec<usize> {
+    
+    let mut rectangle = Vec::<usize>::new();
+
+    let start_row = 0;
+    let start_col = width/4;
+
+    for i in 0..height {
+        for j in 0..width {
+            if j >= width/4 && j < width-width/4 {
+                rectangle.push(0x000000);
+            }
+            else {
+                rectangle.push (2);
+            }
+        }
+    }
+    
+    return rectangle;
+}
+
 
 /// Generate a square by filling the entire width and height with 0 (black)
 /// NOTE:  width and height represents the tile size.  In the case of the 
