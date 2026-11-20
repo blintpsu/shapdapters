@@ -48,9 +48,35 @@ fn initialize_tile(width: usize, height: usize) -> Vec<usize> {
     return tile;
 }
 
+/// Generate a vertical rectangle
+/// NOTE:  width and height represents the tile size.  In the case of the 
+/// vertical rectangle it fills in half the columns in the center of the tile 
+/// top to bottom.
+fn generate_vertical_rectangle (width: usize, height: usize) -> Vec<usize> {
+    
+    let mut rectangle = Vec::<usize>::new();
+
+    let start_row = 0;
+    let start_col = width/4;
+
+    for i in 0..height {
+        for j in 0..width {
+            if j >= width/4 && j < width-width/4 {
+                rectangle.push(0x000000);
+            }
+            else {
+                rectangle.push (2);
+            }
+        }
+    }
+    
+    return rectangle;
+}
+
+
 /// Generate a square by filling the entire width and height with 0 (black)
 /// NOTE:  width and height represents the tile size.  In the case of the 
-/// square it fills the entire tile but that's not the case for all shapes
+/// square it fills the entire tile but that's not the case for all shapes.
 fn generate_square (width: usize, height: usize) -> Vec<usize> {
     let mut square = Vec::<usize>::new();
     for i in 0..width*height-1 {
@@ -63,8 +89,8 @@ fn generate_square (width: usize, height: usize) -> Vec<usize> {
 /// This method generates a 16x16 tile in which it draws a shape. The default color is black.
 fn generate_shape(width: usize, height: usize) -> Result<Vec<usize>, ShapdapterError> {
     // Error code adapted from Bart Massey's Chomp library skeleton.  tiles 
-    // must not have a 0 dimension and must be 
-    if width == 0 || height == 0 || width != height {
+    // must not have a 0 dimension, must be square and must be a multiple of 2
+    if width == 0 || height == 0 || width != height || width % 2 != 0 {
             return Err(ShapdapterError::InvalidSize { width, height });
     }
     
@@ -76,7 +102,7 @@ fn generate_shape(width: usize, height: usize) -> Result<Vec<usize>, ShapdapterE
     match random_number {
         SHAPE_SQUARE => shape = generate_square(width, height),
         SHAPE_CIRCLE => println! ("Circle generation needs to be implemented"),
-        SHAPE_VERTICAL_RECTANGLE => println! ("Vertical rectangle generation needs to be implemented"),
+        SHAPE_VERTICAL_RECTANGLE => shape = generate_vertical_rectangle(width, height),
         SHAPE_HORIZONTAL_RECTANGLE => println! (""),
         _ => println! ("Default shape generation needs to be implemented"),
     }
