@@ -56,16 +56,13 @@ fn generate_vertical_rectangle (width: usize, height: usize) -> Vec<usize> {
     
     let mut rectangle = Vec::<usize>::new();
 
-    let start_row = 0;
-    let start_col = width/4;
-
     for i in 0..height {
         for j in 0..width {
             if j >= width/4 && j < width-width/4 {
                 rectangle.push(0x000000);
             }
             else {
-                rectangle.push (2);
+                rectangle.push (1);
             }
         }
     }
@@ -75,29 +72,24 @@ fn generate_vertical_rectangle (width: usize, height: usize) -> Vec<usize> {
 
 /// Generate a horizontal rectangle
 /// NOTE:  width and height represents the tile size.  In the case of the 
-/// vertical rectangle it fills in half the columns in the center of the tile 
-/// top to bottom.
-fn generate_vertical_rectangle (width: usize, height: usize) -> Vec<usize> {
-    
+/// horizontal rectangle it fills in half the columns in the center of the tile 
+/// left to right
+fn generate_horizontal_rectangle (width: usize, height: usize) -> Vec<usize> {
     let mut rectangle = Vec::<usize>::new();
-
-    let start_row = 0;
-    let start_col = width/4;
 
     for i in 0..height {
         for j in 0..width {
-            if j >= width/4 && j < width-width/4 {
+            if i >= height/4 && i < height-height/4 {
                 rectangle.push(0x000000);
             }
             else {
-                rectangle.push (2);
+                rectangle.push (1);
             }
         }
     }
     
     return rectangle;
 }
-
 
 /// Generate a square by filling the entire width and height with 0 (black)
 /// NOTE:  width and height represents the tile size.  In the case of the 
@@ -111,7 +103,14 @@ fn generate_square (width: usize, height: usize) -> Vec<usize> {
     return square;
 }
 
-/// This method generates a 16x16 tile in which it draws a shape. The default color is black.
+/// Generate a circle.
+/// Uses this algorithm: 
+/// https://groups.csail.mit.edu/graphics/classes/6.837/F98/Lecture6/circle.html
+fn generate_square (width: usize, height: usize) -> Vec<usize> {
+}
+
+
+
 fn generate_shape(width: usize, height: usize) -> Result<Vec<usize>, ShapdapterError> {
     // Error code adapted from Bart Massey's Chomp library skeleton.  tiles 
     // must not have a 0 dimension, must be square and must be a multiple of 2
@@ -128,7 +127,7 @@ fn generate_shape(width: usize, height: usize) -> Result<Vec<usize>, ShapdapterE
         SHAPE_SQUARE => shape = generate_square(width, height),
         SHAPE_CIRCLE => println! ("Circle generation needs to be implemented"),
         SHAPE_VERTICAL_RECTANGLE => shape = generate_vertical_rectangle(width, height),
-        SHAPE_HORIZONTAL_RECTANGLE => println! (""),
+        SHAPE_HORIZONTAL_RECTANGLE => shape = generate_horizontal_rectangle(width, height),
         _ => println! ("Default shape generation needs to be implemented"),
     }
 
