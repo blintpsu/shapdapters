@@ -1,5 +1,8 @@
-
+use std::f32;
+use std::collections::HashSet;
 use rand;
+
+// TODO: Allocate using with_capacity where practical
 
 /// Shape consts
 /// I'm using consts due to problems I ran into picking a random enum value.
@@ -76,7 +79,7 @@ fn generate_vertical_rectangle (width: usize, height: usize) -> Vec<usize> {
 /// left to right
 fn generate_horizontal_rectangle (width: usize, height: usize) -> Vec<usize> {
     let mut rectangle = Vec::<usize>::new();
-
+    
     for i in 0..height {
         for j in 0..width {
             if i >= height/4 && i < height-height/4 {
@@ -96,20 +99,93 @@ fn generate_horizontal_rectangle (width: usize, height: usize) -> Vec<usize> {
 /// square it fills the entire tile but that's not the case for all shapes.
 fn generate_square (width: usize, height: usize) -> Vec<usize> {
     let mut square = Vec::<usize>::new();
-    for i in 0..width*height-1 {
-        square.push(0x000000);
+    for i in 0..height {
+        for j in 0..width {
+            square.push(1);
+        }
     }
     
     return square;
 }
 
+fn circle_midpoint (x_center: i32, y_center: i32, radius: i32) -> HashSet<(i32, i32)> {
+    let mut x = 0;
+    let mut y = radius;
+    let mut p = (5 - radius*4)/4;
+
+    let mut points = HashSet::<(i32, i32)>::new();
+
+    points = circle_points (points, x_center, y_center, x, y);
+    while x < y {
+        x += 1;
+        if p < 0 {
+            p += 2*x+1;
+        } else {
+            y -= 1;
+            p += 2*(x-y)+1;
+        }
+        points = circle_points (points, x_center, y_center, x, y);
+    }
+
+    return points;
+}
+
+// TODO: Change this vec to a hash set
+fn circle_points (mut points:HashSet<(i32, i32)>, x_center: i32, y_center: i32, x: i32, y:i32) -> HashSet<(i32, i32)> {
+    
+    if x == 0 {
+        points.insert ((x_center, y_center + y));
+        points.insert ((x_center, y_center - y));
+        points.insert ((x_center + y, y_center));
+        points.insert ((x_center - y, y_center));
+    }
+    else if x == y {
+        points.insert ((x_center + x, y_center + y));
+        points.insert ((x_center - x, y_center + y));
+        points.insert ((x_center + x, y_center - y));
+        points.insert ((x_center - x, y_center - y));
+    }
+    else if x < y {
+        points.insert ((x_center + x, y_center + y));
+        points.insert ((x_center - x, y_center + y));
+        points.insert ((x_center + x, y_center - y));
+        points.insert ((x_center - x, y_center - y));
+        points.insert ((x_center + y, y_center + x));
+        points.insert ((x_center - y, y_center + x));
+        points.insert ((x_center + y, y_center - x));
+        points.insert ((x_center - y, y_center - x));
+    }
+
+    return points;
+}
+
 /// Generate a circle.
 /// Uses this algorithm: 
 /// https://groups.csail.mit.edu/graphics/classes/6.837/F98/Lecture6/circle.html
-fn generate_square (width: usize, height: usize) -> Vec<usize> {
+fn generate_circle (width: usize, height: usize) -> Vec<usize> {
+    let mut tile = Vec::<usize>::new();
+
+    let x_center:i32 = (width/2) as i32;
+    let radius: i32 = x_center;
+    let y_center: i32 = (height/2) as i32;
+        
+    let pts = circle_midpoint(x_center, y_center, radius);
+
+    // Populate the tile
+    for x in 0..height {
+        for y in 0..width {
+            let test_value = (x as i32, y as i32);
+            if pts.contains(&test_value) {
+                tile.push (1);
+            }
+            else {
+                tile.push (0);
+            }
+        }
+    }
+
+    tile
 }
-
-
 
 fn generate_shape(width: usize, height: usize) -> Result<Vec<usize>, ShapdapterError> {
     // Error code adapted from Bart Massey's Chomp library skeleton.  tiles 
@@ -125,7 +201,7 @@ fn generate_shape(width: usize, height: usize) -> Result<Vec<usize>, ShapdapterE
     
     match random_number {
         SHAPE_SQUARE => shape = generate_square(width, height),
-        SHAPE_CIRCLE => println! ("Circle generation needs to be implemented"),
+        SHAPE_CIRCLE => shape = generate_circle(width, height),
         SHAPE_VERTICAL_RECTANGLE => shape = generate_vertical_rectangle(width, height),
         SHAPE_HORIZONTAL_RECTANGLE => shape = generate_horizontal_rectangle(width, height),
         _ => println! ("Default shape generation needs to be implemented"),
